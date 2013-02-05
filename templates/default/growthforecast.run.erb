@@ -1,0 +1,5 @@
+#!/bin/bash
+HOME=<%= node['user']['home'] %>
+source ~/perl5/perlbrew/etc/bashrc
+
+exec growthforecast.pl --port 5125 --data-dir $HOME/growthforecast --front-proxy 127.0.0.1

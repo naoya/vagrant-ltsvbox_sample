@@ -1,0 +1,39 @@
+<source>
+  type tail_labeled_tsv
+  path /var/log/nginx/access.log
+  tag nginx.access
+  pos_file /tmp/fluent.log.pos
+</source>
+
+<match nginx.access>
+  type copy
+  <store>
+    type file
+    path /var/log/td-agent/nginx.access
+  </store>
+  <store>
+    type growthforecast
+    gfapi_url http://localhost:5125/api/
+    service   nginx
+    section   response
+    name_keys reqtime,upsttime
+  </store>
+  <store>
+    type datacounter
+    unit minute
+    tag nginx.access.status_count
+    count_key status
+    pattern1 3xx ^3\d\d$
+    pattern2 4xx ^4\d\d$
+    pattern3 5xx ^5\d\d$
+    pattern4 200 ^200$ 
+  </store>
+</match>
+
+<match nginx.access.status_count>
+  type growthforecast
+  gfapi_url http://localhost:5125/api/
+  service   nginx
+  section   status_codes
+  name_keys nginx.access_5xx_count,nginx.access_4xx_count,nginx.access_3xx_count,nginx.access_200_count
+</match>
